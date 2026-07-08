@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💍 Invitación de Boda - Juan Carlos & Denise</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Pinyon+Script&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ─── RESET Y BASE ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: linear-gradient(135deg, #070e17 0%, #0d1b2a 50%, #1b263b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ─── CANVAS FONDO DE ORO ─── */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ─── SOBRE INTERACTIVO DE APERTURA ─── */
+        .envelope-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(135deg, #070e17 0%, #0d1b2a 100%);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), visibility 1s;
+        }
+
+        .envelope-container.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .envelope {
+            position: relative;
+            width: 480px;
+            height: 320px;
+            background: #0b1d33;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.7), inset 0 0 40px rgba(0,0,0,0.5);
+            perspective: 1000px;
+            border-radius: 4px;
+            border: 1px solid rgba(197, 168, 128, 0.35);
+            transition: transform 0.5s ease;
+            cursor: pointer;
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        /* Solapa (Flap) */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 240px solid transparent;
+            border-right: 240px solid transparent;
+            border-top: 165px solid #0b1d33;
+            border-bottom: 0 solid transparent;
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+        }
+
+        .envelope.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1; /* Pasa detrás de la tarjeta */
+            filter: none;
+        }
+
+        /* Cuerpo / Bolsillo (Pocket) */
+        .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .pocket::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 240px solid #0f243d;
+            border-top: 160px solid transparent;
+            border-bottom: 160px solid #0f243d;
+            filter: drop-shadow(4px 0 6px rgba(0,0,0,0.15));
+        }
+
+        .pocket::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-right: 240px solid #0f243d;
+            border-top: 160px solid transparent;
+            border-bottom: 160px solid #0f243d;
+            filter: drop-shadow(-4px 0 6px rgba(0,0,0,0.15));
+        }
+
+        .pocket-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 240px solid transparent;
+            border-right: 240px solid transparent;
+            border-bottom: 160px solid #142a47;
+            z-index: 4;
+            pointer-events: none;
+            filter: drop-shadow(0 -3px 8px rgba(0,0,0,0.2));
+        }
+
+        /* Lacre de cera (Wax Seal) */
+        .wax-seal {
+            position: absolute;
+            top: 140px;
+            left: 212.5px;
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle, #e5c158 0%, #aa8220 100%);
+            border-radius: 50%;
+            z-index: 6;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cinzel', serif;
+            color: #0b1d33;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: 2px solid #8e6815;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            letter-spacing: 1px;
+        }
+
+        .wax-seal::after {
+            content: 'Toca para abrir';
+            position: absolute;
+            top: 65px;
+            width: 200px;
+            text-align: center;
+            left: -72.5px;
+            color: #c5a880;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: pulseText 2s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .wax-seal:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(229,193,88,0.4);
+        }
+
+        .envelope.open .wax-seal {
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Tarjeta deslizante */
+        .envelope-card {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 440px;
+            height: 290px;
+            background: #fbf8f3;
+            z-index: 2;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 30px;
+            border: 1px solid rgba(197, 168, 128, 0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 2px;
+        }
+
+        .envelope-card::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            border: 1px solid rgba(197, 168, 128, 0.3);
+            pointer-events: none;
+        }
+
+        .card-monogram {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 2.2rem;
+            color: #c5a880;
+            margin-bottom: 2px;
+        }
+
+        .card-line {
+            width: 60px;
+            height: 1px;
+            background: #c5a880;
+            margin-bottom: 15px;
+        }
+
+        .card-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .card-names {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: #0b1d33;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .envelope.open .envelope-card {
+            transform: translateY(-180px);
+        }
+
+        /* ─── CONTENEDOR PRINCIPAL (GLASSMORPHISM) ─── */
+        .invitation {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(253, 251, 247, 0.82);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 4px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 0 100px rgba(197, 168, 128, 0.15);
+            padding: 60px 50px;
+            position: relative;
+            z-index: 10;
+            animation: fadeInUp 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(197, 168, 128, 0.4);
+            margin: 40px auto;
+        }
+
+        /* Marco decorativo dorado interior */
+        .invitation::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            border: 1px solid rgba(197, 168, 128, 0.5);
+            pointer-events: none;
+            z-index: 11;
+        }
+
+        .invitation::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            border: 1px solid rgba(197, 168, 128, 0.2);
+            pointer-events: none;
+            z-index: 11;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Esquinas ornamentales */
+        .corner-deco {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(197, 168, 128, 0.7);
+            z-index: 12;
+            pointer-events: none;
+        }
+        .corner-tl { top: 25px; left: 25px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 25px; right: 25px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 25px; left: 25px; border-right: none; border-top: none; }
+        .corner-br { bottom: 25px; right: 25px; border-left: none; border-top: none; }
+
+        /* ─── DECORACIÓN ─── */
+        .deco-monogram {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 3rem;
+            color: #c5a880;
+            text-align: center;
+            margin-bottom: 5px;
+            line-height: 1;
+            letter-spacing: 2px;
+        }
+
+        .deco-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: #c5a880;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        .deco-line span {
+            display: inline-block;
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c5a880, transparent);
+        }
+
+        /* ─── TITULOS ─── */
+        .title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            text-align: center;
+            color: #0b1d33;
+            margin: 5px 0 0;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 8px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .names {
+            font-family: 'Cinzel', serif;
+            font-size: 2.8rem;
+            text-align: center;
+            color: #0b1d33;
+            margin: 35px 0 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            line-height: 1.2;
+        }
+
+        .names-ampersand {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 4rem;
+            color: #c5a880;
+            display: block;
+            margin: -10px 0 -15px;
+            font-weight: normal;
+        }
+
+        /* ─── COUNTDOWN ─── */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 35px 0;
+        }
+
+        .countdown-item {
+            background: rgba(11, 29, 51, 0.03);
+            border: 1px solid rgba(197, 168, 128, 0.25);
+            padding: 12px 10px;
+            border-radius: 2px;
+            min-width: 75px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .countdown-item span {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #0b1d33;
+        }
+
+        .countdown-item label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #c5a880;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* ─── SECCIÓN FOTO DE LOS NOVIOS ─── */
+        .couple-photo-container {
+            margin: 35px auto;
+            max-width: 500px;
+            border: 1px solid rgba(197, 168, 128, 0.4);
+            padding: 10px;
+            background: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .couple-photo {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* ─── FRASE DE AMOR ─── */
+        .love-phrase {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #555;
+            text-align: center;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* ─── SECCIÓN TÍTULOS DECORATIVOS ─── */
+        .section-title-decor {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #0b1d33;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .section-title-decor::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 1px;
+            background: #c5a880;
+            margin: 10px auto 0;
+        }
+
+        /* ─── FECHA Y UBICACIÓN ─── */
+        .date-location-section {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .date-box {
+            display: inline-block;
+            border-top: 1px solid rgba(197, 168, 128, 0.4);
+            border-bottom: 1px solid rgba(197, 168, 128, 0.4);
+            padding: 20px 40px;
+            margin-bottom: 25px;
+        }
+
+        .date-day {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: #c5a880;
+        }
+
+        .date-main {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            font-weight: 400;
+            color: #0b1d33;
+            line-height: 1.1;
+        }
+
+        .date-month-year {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: #0b1d33;
+        }
+
+        .location-box h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: #0b1d33;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .location-box p {
+            font-size: 1.15rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .btn-maps {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 25px;
+            border: 1px solid rgba(11, 29, 51, 0.2);
+            color: #0b1d33;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            background: rgba(253, 251, 247, 0.5);
+        }
+
+        .btn-maps:hover {
+            background: #0b1d33;
+            color: #fbf8f3;
+            border-color: #0b1d33;
+        }
+
+        /* ─── PADRES Y PADRINOS ─── */
+        .family-section {
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .family-intro {
+            font-size: 1.25rem;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 35px;
+        }
+
+        .family-grid {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .family-column {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .family-column h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #0b1d33;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .family-column h4::after {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 1px;
+            background: #c5a880;
+            margin: 8px auto 0;
+        }
+
+        .family-column p {
+            font-size: 1.15rem;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        /* ─── TIMELINE (ITINERARIO) ─── */
+        .timeline-section {
+            margin: 50px 0;
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 600px;
+            margin: 40px auto 10px;
+            padding: 10px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            background: rgba(197, 168, 128, 0.4);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 45px;
+            width: 50%;
+            padding: 0 30px;
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            text-align: right;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            text-align: left;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            background: #c5a880;
+            border: 3px solid #fbf8f3;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -7px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -7px;
+        }
+
+        .timeline-content {
+            background: rgba(253, 251, 247, 0.6);
+            border: 1px solid rgba(197, 168, 128, 0.2);
+            padding: 18px 20px;
+            border-radius: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            transition: background 0.3s;
+        }
+
+        .timeline-time {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #c5a880;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .timeline-content h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.05rem;
+            color: #0b1d33;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .timeline-content p {
+            font-size: 1.05rem;
+            color: #666;
+        }
+
+        /* Scroll Reveal Effect */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-item.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ─── CÓDIGO DE VESTIMENTA (DRESS CODE) ─── */
+        .dresscode-section {
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .dresscode-box {
+            background: rgba(253, 251, 247, 0.6);
+            border: 1px solid rgba(197, 168, 128, 0.25);
+            border-radius: 4px;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        }
+
+        .dresscode-icon {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .dresscode-box h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: #0b1d33;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .dresscode-box p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .color-palette-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #c5a880;
+            margin-bottom: 10px;
+        }
+
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .color-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* ─── MESA DE REGALOS ─── */
+        .gifts-section {
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .gifts-box {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .gifts-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .gifts-actions {
+            background: rgba(11, 29, 51, 0.03);
+            border: 1px solid rgba(197, 168, 128, 0.2);
+            border-radius: 2px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .gift-option-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            color: #0b1d33;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .gift-option p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .bank-details {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #c5a880 !important;
+            letter-spacing: 1.5px;
+            margin-top: 5px;
+        }
+
+        /* ─── GALERÍA (SLIDER) ─── */
+        .slider-container {
+            margin: 35px 0;
+            border-radius: 2px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            position: relative;
+            aspect-ratio: 16 / 9;
+            background: #fbf8f3;
+            border: 1px solid rgba(197, 168, 128, 0.3);
+        }
+
+        .slider-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slider-track img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(253, 251, 247, 0.8);
+            border: 1px solid rgba(197, 168, 128, 0.3);
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            color: #0b1d33;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .slider-btn:hover {
+            background: #0b1d33;
+            color: #fbf8f3;
+            border-color: #0b1d33;
+        }
+
+        .slider-btn.prev { left: 15px; }
+        .slider-btn.next { right: 15px; }
+
+        /* ─── BOTÓN DE CONFIRMACIÓN ─── */
+        .btn-confirm {
+            display: block;
+            width: fit-content;
+            margin: 30px auto 10px;
+            padding: 16px 45px;
+            background: #0b1d33;
+            color: #fbf8f3;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(11, 29, 81, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid #c5a880;
+            cursor: pointer;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(11, 29, 81, 0.3);
+            background: #142a47;
+            color: #c5a880;
+        }
+
+        .btn-confirm:active {
+            transform: translateY(0);
+        }
+
+        /* ─── PIE DE PÁGINA ─── */
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1.1rem;
+            font-family: 'Pinyon Script', cursive;
+            color: #c5a880;
+            border-top: 1px solid rgba(197, 168, 128, 0.2);
+            padding-top: 25px;
+        }
+
+        /* Adaptación móvil del sobre */
+        @media (max-width: 520px) {
+            .envelope {
+                width: 320px;
+                height: 220px;
+            }
+            .flap {
+                border-left-width: 160px;
+                border-right-width: 160px;
+                border-top-width: 110px;
+            }
+            .pocket::before {
+                border-left-width: 160px;
+                border-top-width: 110px;
+                border-bottom-width: 110px;
+            }
+            .pocket::after {
+                border-right-width: 160px;
+                border-top-width: 110px;
+                border-bottom-width: 110px;
+            }
+            .pocket-bottom {
+                border-left-width: 160px;
+                border-right-width: 160px;
+                border-bottom-width: 110px;
+            }
+            .wax-seal {
+                top: 85px;
+                left: 132.5px;
+            }
+            .wax-seal::after {
+                top: 60px;
+                left: -73.75px;
+            }
+            .envelope-card {
+                width: 290px;
+                height: 195px;
+                top: 12px;
+                left: 15px;
+                padding: 15px;
+            }
+            .card-monogram { font-size: 1.6rem; }
+            .card-names { font-size: 1.2rem; }
+            .envelope.open .envelope-card {
+                transform: translateY(-120px);
+            }
+        }
+
+        /* ─── RESPONSIVE INVITACIÓN ─── */
+        @media (max-width: 640px) {
+            body {
+                padding: 20px 10px;
+            }
+            .invitation {
+                padding: 45px 25px;
+            }
+            .names {
+                font-size: 2.2rem;
+            }
+            .names-ampersand {
+                font-size: 3rem;
+            }
+            .btn-confirm {
+                padding: 14px 35px;
+                width: 100%;
+            }
+            .couple-photo-container {
+                padding: 6px;
+            }
+        }
+
+        /* Responsive para el Timeline */
+        @media (max-width: 600px) {
+            .timeline::before {
+                left: 15px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 40px;
+                padding-right: 0;
+                margin-bottom: 35px;
+            }
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) {
+                left: 0;
+                text-align: left;
+            }
+            .timeline-item:nth-child(odd) .timeline-dot,
+            .timeline-item:nth-child(even) .timeline-dot {
+                left: 8px;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Audio de Fondo (Reemplaza la URL en src por tu enlace directo de Google Drive, Dropbox o hosting) -->
+    <audio id="bgMusic" loop>
+        <source src="https://tu-enlace-de-cancion.mp3" type="audio/mpeg">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
+    <!-- Canvas para polvo de oro flotante -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Contenedor del sobre interactivo -->
+    <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope" id="envelope">
+            <div class="flap"></div>
+            <div class="pocket"></div>
+            <div class="pocket-bottom"></div>
+            <div class="wax-seal">JC & D</div>
+            <div class="envelope-card">
+                <div class="card-monogram">JC & D</div>
+                <div class="card-line"></div>
+                <div class="card-text">Nuestra Boda</div>
+                <div class="card-names">Juan Carlos & Denise</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invitación real (se revela tras abrir el sobre) -->
+    <div class="invitation">
+        <!-- Esquinas decorativas de la tarjeta -->
+        <div class="corner-deco corner-tl"></div>
+        <div class="corner-deco corner-tr"></div>
+        <div class="corner-deco corner-bl"></div>
+        <div class="corner-deco corner-br"></div>
+
+        <!-- Monograma inicial decorativo -->
+        <div class="deco-monogram">JC & D</div>
+
+        <!-- Línea decorativa -->
+        <div class="deco-line">
+            <span></span> ✦ <span></span>
+        </div>
+
+        <!-- Título -->
+        <h1 class="title">Nos casamos</h1>
+        <p class="subtitle">y queremos celebrarlo contigo</p>
+
+        <!-- Nombres -->
+        <div class="names">
+            Juan Carlos
+            <span class="names-ampersand">&</span>
+            Denise
+        </div>
+
+        <!-- Contador Regresivo -->
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <span id="days">00</span>
+                <label>Días</label>
+            </div>
+            <div class="countdown-item">
+                <span id="hours">00</span>
+                <label>Horas</label>
+            </div>
+            <div class="countdown-item">
+                <span id="minutes">00</span>
+                <label>Minutos</label>
+            </div>
+            <div class="countdown-item">
+                <span id="seconds">00</span>
+                <label>Segundos</label>
+            </div>
+        </div>
+
+        <!-- FOTO DE LOS NOVIOS -->
+        <div class="couple-photo-container">
+            <!-- Puedes reemplazar este enlace por la ruta de tu foto (ejemplo: novios.jpg) -->
+            <img src="https://i.ibb.co/fdxy1S3v/1.jpg" alt="Juan Carlos y Denise" class="couple-photo">
+        </div>
+
+        <!-- FRASE DE AMOR -->
+        <div class="love-phrase">
+            “Después de tantos años caminando juntos hemos decidido unir nuestras vidas en matrimonio, por lo que nos complace que sean partícipes de esta unión...”
+        </div>
+
+        <!-- FECHA Y UBICACIÓN -->
+        <div class="date-location-section">
+            <div class="section-title-decor">Fecha y Ubicación</div>
+            <div class="date-box">
+                <div class="date-day">SÁBADO</div>
+                <div class="date-main">26</div>
+                <div class="date-month-year">SEPTIEMBRE | 2026</div>
+            </div>
+            <div class="location-box">
+                <h3>Salón IMPERIUS</h3>
+                <p>Paseo de los Capulines No. 45, Col. Los Capulines, Apan Hgo.</p>
+                <!-- REEMPLAZA EL LINK DE ABAJO POR TU ENLACE DE GOOGLE MAPS -->
+                <a href="https://maps.google.com/?q=Paseo+de+los+Capulines+No.+45,+Col.+Los+Capulines,+Apan+Hgo." class="btn-maps" target="_blank">
+                    📍 Ver ubicación en Google Maps
+                </a>
+            </div>
+        </div>
+
+        <!-- PADRES Y PADRINOS -->
+        <div class="family-section">
+            <div class="section-title-decor">¡Celebra con nosotros este día tan maravilloso!</div>
+            
+            <div class="family-grid">
+                <div class="family-column">
+                    <h4>Padres de la Novia</h4>
+                    <p>Armando Velasco López</p>
+                    <p>Guillermina Islas Carmona</p>
+                </div>
+                <div class="family-column">
+                    <h4>Padres del Novio</h4>
+                    <p>Pedro Monroy Luja</p>
+                    <p>María Teresa Castillo González</p>
+                </div>
+                <div class="family-column">
+                    <h4>Padrinos de ceremonia</h4>
+                    <p>José Pedro Monroy Castillo</p>
+                    <p>Jazmín Arellano Ortega</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMELINE (ITINERARIO ANIMADO) -->
+        <div class="timeline-section">
+            <div class="section-title-decor">Itinerario</div>
+            <div class="timeline">
+                <!-- Item 1 -->
+                <div class="timeline-item reveal-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-time">14:40 HRS</span>
+                        <h3>Recepción</h3>
+                        <p>Salón IMPERIUS, Paseo de los Capulines No. 45</p>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="timeline-item reveal-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-time">15:00 HRS</span>
+                        <h3>Ceremonia Civil</h3>
+                        <p>Salón IMPERIUS</p>
+                    </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="timeline-item reveal-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-time">20:30 HRS</span>
+                        <h3>Vals de los Novios</h3>
+                        <p>Vals familiar y apertura de pista</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CÓDIGO DE VESTIMENTA -->
+        <div class="dresscode-section">
+            <div class="section-title-decor">Código de Vestimenta</div>
+            <div class="dresscode-box">
+                <div class="dresscode-icon">🤠👗</div>
+                <h3>Temática Campirano</h3>
+                <div style="margin-bottom: 20px; text-align: left; line-height: 1.6; font-size: 1.05rem; color: #555;">
+                    <p style="margin-bottom: 10px;"><strong>Hombres:</strong> Se sugiere traje con botas y sombrero, o pantalón de mezclilla, botas, Saco o Blazer.</p>
+                    <p><strong>Mujeres:</strong> Se sugiere vestido y botas acorde.</p>
+                </div>
+                <div class="color-palette-title">Sugerencia de colores:</div>
+                <div class="color-palette">
+                    <div class="color-circle" style="background-color: #0b1d33;" title="Azul Marino"></div>
+                    <div class="color-circle" style="background-color: #c5a880;" title="Oro Suave"></div>
+                    <div class="color-circle" style="background-color: #fbf8f3; border: 1px solid #c5a880;" title="Blanco Roto"></div>
+                    <div class="color-circle" style="background-color: #e5c158;" title="Oro Brillante"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MESA DE REGALOS -->
+        <div class="gifts-section">
+            <div class="section-title-decor">Mesa de Regalos</div>
+            <div class="gifts-box">
+                <p class="gifts-text">
+                    El mejor regalo para nosotros será contar con tu presencia en este día tan especial. Sin embargo, si desean hacernos un obsequio adicional, les agradezco de antemano por su generosidad. ¡Gracias por ser parte de este día tan especial!
+                </p>
+                <div class="gifts-actions">
+                    <div class="gift-option">
+                        <div class="gift-option-title">💸 Lluvia de Sobres / Transferencia</div>
+                        <p>Puedes hacernos llegar tu obsequio en efectivo en el evento o vía transferencia electrónica.</p>
+                        <!-- REEMPLAZA LOS DATOS CON LOS TUYOS -->
+                        <p class="bank-details">Banco: Principal | CLABE: 0000 0000 0000 0000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARRUSEL DE FOTOS -->
+        <div class="section-title-decor">Nuestros Momentos</div>
+        <div class="slider-container" id="slider">
+            <div class="slider-track" id="sliderTrack">
+                <img src="https://i.ibb.co/xqz3S3DZ/Captura-de-pantalla-2026-07-07-145934.png" alt="Nuestros Momentos 1">
+                <img src="https://i.ibb.co/5x8XvWQ1/Captura-de-pantalla-2026-07-07-145945.png" alt="Nuestros Momentos 2">
+                <img src="https://i.ibb.co/fYydTJgf/Captura-de-pantalla-2026-07-07-145952.png" alt="Nuestros Momentos 3">
+                <img src="https://i.ibb.co/235KdvLj/Captura-de-pantalla-2026-07-07-150005.png" alt="Nuestros Momentos 4">
+                <img src="https://i.ibb.co/RkQQzRX9/Captura-de-pantalla-2026-07-07-150014.png" alt="Nuestros Momentos 5">
+                <img src="https://i.ibb.co/wrWKWTdt/Captura-de-pantalla-2026-07-07-150021.png" alt="Nuestros Momentos 6">
+                <img src="https://i.ibb.co/WpWzHg9c/Captura-de-pantalla-2026-07-07-150028.png" alt="Nuestros Momentos 7">
+            </div>
+            <button class="slider-btn prev" id="prevBtn">‹</button>
+            <button class="slider-btn next" id="nextBtn">›</button>
+        </div>
+
+        <!-- BOTÓN DE CONFIRMACIÓN -->
+        <a href="https://forms.gle/WqVUKieKQNefS6EP9" class="btn-confirm" target="_blank">
+            Confirmar asistencia
+        </a>
+
+        <div class="footer-note">
+            Gracias por ser parte de nuestra historia
+        </div>
+    </div>
+
+    <!-- ─── SCRIPTS ─── -->
+    <script>
+        // ─── LÓGICA DE APERTURA DEL SOBRE ───
+        (function () {
+            const envelope = document.getElementById('envelope');
+            const envelopeContainer = document.getElementById('envelopeContainer');
+            const music = document.getElementById('bgMusic');
+            
+            if (envelope && envelopeContainer) {
+                envelope.addEventListener('click', function () {
+                    if (!envelope.classList.contains('open')) {
+                        envelope.classList.add('open');
+                        
+                        // Intentar reproducir el audio tras la interacción del usuario
+                        if (music) {
+                            music.play().catch(error => {
+                                console.log("La reproducción de música fue prevenida por el navegador:", error);
+                            });
+                        }
+                        
+                        setTimeout(() => {
+                            envelopeContainer.classList.add('fade-out');
+                        }, 2200);
+                    }
+                });
+            }
+        })();
+
+        // ─── TIMELINE SCROLL REVEAL (INTERSECTION OBSERVER) ───
+        (function () {
+            const items = document.querySelectorAll('.reveal-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal');
+                    }
+                });
+            }, {
+                threshold: 0.15
+            });
+
+            items.forEach(item => {
+                observer.observe(item);
+            });
+        })();
+
+        // ─── SLIDER ───
+        (function () {
+            const track = document.getElementById('sliderTrack');
+            const slides = track.querySelectorAll('img');
+            const totalSlides = slides.length;
+            let currentIndex = 0;
+            let interval;
+
+            const goToSlide = (index) => {
+                if (index < 0) index = totalSlides - 1;
+                if (index >= totalSlides) index = 0;
+                currentIndex = index;
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            };
+
+            const nextSlide = () => goToSlide(currentIndex + 1);
+            const prevSlide = () => goToSlide(currentIndex - 1);
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                clearInterval(interval);
+                nextSlide();
+                startAutoSlide();
+            });
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                clearInterval(interval);
+                prevSlide();
+                startAutoSlide();
+            });
+
+            const startAutoSlide = () => {
+                interval = setInterval(nextSlide, 4500);
+            };
+            startAutoSlide();
+
+            const sliderContainer = document.getElementById('slider');
+            sliderContainer.addEventListener('mouseenter', () => clearInterval(interval));
+            sliderContainer.addEventListener('mouseleave', startAutoSlide);
+
+            goToSlide(0);
+        })();
+
+        // ─── COUNTDOWN TIMER ───
+        (function () {
+            const targetDate = new Date('Sep 26, 2026 18:00:00').getTime();
+
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference <= 0) {
+                    document.getElementById('countdown').style.display = 'none';
+                    return;
+                }
+
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById('days').innerText = String(days).padStart(2, '0');
+                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+            };
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        })();
+
+        // ─── PARTÍCULAS DE POLVO DE ORO CON CANVAS ───
+        (function () {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            const particles = [];
+            
+            const colors = [
+                'rgba(212, 175, 55, 0.4)',  
+                'rgba(197, 168, 128, 0.5)', 
+                'rgba(247, 231, 206, 0.4)', 
+                'rgba(255, 215, 0, 0.25)',  
+                'rgba(253, 251, 247, 0.3)'  
+            ];
+
+            const resizeCanvas = () => {
+                w = window.innerWidth;
+                h = window.innerHeight;
+                canvas.width = w;
+                canvas.height = h;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h - h;
+                    this.size = Math.random() * 4 + 1; 
+                    this.speedY = Math.random() * 0.8 + 0.3; 
+                    this.speedX = (Math.random() - 0.5) * 0.4;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                    this.rotation = Math.random() * 360;
+                    this.rotationSpeed = (Math.random() - 0.5) * 0.01;
+                    this.opacity = Math.random() * 0.5 + 0.3;
+                }
+                update() {
+                    this.y += this.speedY;
+                    this.x += this.speedX;
+                    this.rotation += this.rotationSpeed;
+                    if (this.y > h + 20) {
+                        this.y = -20;
+                        this.x = Math.random() * w;
+                        this.size = Math.random() * 4 + 1;
+                        this.speedY = Math.random() * 0.8 + 0.3;
+                    }
+                    if (this.x < -20) this.x = w + 20;
+                    if (this.x > w + 20) this.x = -20;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation);
+                    ctx.globalAlpha = this.opacity;
+                    ctx.fillStyle = this.color;
+                    
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            for (let i = 0; i < 120; i++) {
+                const p = new Particle();
+                p.y = Math.random() * h;
+                particles.push(p);
+            }
+
+            const animate = () => {
+                ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            };
+            animate();
+        })();
+    </script>
+</body>
+
+</html>
